@@ -1,5 +1,4 @@
 #include <iostream>
-#include <stack>
 #include <queue>
 
 #include "Funciones.h"
@@ -28,5 +27,11 @@ int main() {
     anhioConMasPatentesDeAlcoholes(myQueue);
     // consultaPorAnioyPatente(myQueue, 2000, "ALCOHOLES");
     generacionDeArchivos(myQueue);
+
+    estadisticasDescriptivas(myQueue, 63960);
+
+    /*
+    cout << "Ingrese valor UTM del mes actual: ";
+    cin >> */
     return 0;
 }
