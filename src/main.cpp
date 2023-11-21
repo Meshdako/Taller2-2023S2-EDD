@@ -1,12 +1,12 @@
 #include <iostream>
 #include <queue>
 
-#include "Funciones.h"
+#include "../include/Funciones.h"
 
-#include "Patente.h"
-#include "Empresa.h"
-#include "Fecha.h"
-#include "RUT.h"
+#include "../include/Patente.h"
+#include "../include/Empresa.h"
+#include "../include/Fecha.h"
+#include "../include/RUT.h"
 
 using namespace std;
 

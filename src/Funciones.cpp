@@ -2,7 +2,7 @@
 // Created by Marti on 11/15/2023.
 //
 
-#include "Funciones.h"
+#include "../include/Funciones.h"
 
 // ==== EXTRA ====;
 template <class CharT, bool International = false>

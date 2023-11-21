@@ -2,7 +2,7 @@
 // Created by Marti on 11/15/2023.
 //
 
-#include "Patente.h"
+#include "../include/Patente.h"
 
 Patente::Patente()
 {

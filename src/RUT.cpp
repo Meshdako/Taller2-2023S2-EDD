@@ -2,7 +2,7 @@
 // Created by Marti on 11/15/2023.
 //
 
-#include "RUT.h"
+#include "../include/RUT.h"
 
 RUT::RUT()
 {

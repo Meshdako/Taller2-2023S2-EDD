@@ -2,7 +2,7 @@
 // Created by Marti on 11/15/2023.
 //
 
-#include "Empresa.h"
+#include "../include/Empresa.h"
 
 Empresa::Empresa()
 {
