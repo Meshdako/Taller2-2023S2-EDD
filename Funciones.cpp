@@ -3,6 +3,31 @@
 //
 
 #include "Funciones.h"
+
+// ==== EXTRA ====;
+template <class CharT, bool International = false>
+class my_moneypunct;
+
+template <class CharT, bool International = false>
+class my_moneypunct_byname : public std::moneypunct_byname<CharT, International>
+{
+    friend class my_moneypunct<CharT, International>;
+    using std::moneypunct_byname<CharT, International>::moneypunct_byname;
+};
+
+template <class CharT, bool International>
+class my_moneypunct : public std::moneypunct_byname<CharT, International>
+{
+    my_moneypunct_byname<CharT, International> other_moneypunct;
+public:
+    explicit my_moneypunct(const char* myName, const char* otherName, std::size_t refs = 0) :
+            std::moneypunct_byname<CharT, International>(myName, refs), other_moneypunct(otherName, refs) {}
+    typename std::moneypunct_byname<CharT, International>::string_type do_curr_symbol() const override {
+        return other_moneypunct.do_curr_symbol();
+    }
+    virtual ~my_moneypunct() = default;
+};
+
 // ==== FUNCIÓN 7 ====;
 // ==== FUNCIÓN 6 ====;
 void archivoSalida(queue<Patente> &myNewQueue)
@@ -84,6 +109,257 @@ void consultaPorAnioyPatente(queue<Patente> &myQueue, int _anioIngresado, string
     }
 }
 // ==== FUNCIÓN 4 ====;
+
+void mediana(vector<std::string> &tP, queue<Patente> &myQueue, int valorUTM)
+{
+    queue<Patente> Aux;
+    Patente miPatente;
+
+    vector<double> valoresDePatentes;
+
+    for (unsigned i = 0; i < tP.size(); i++) {
+        cout << "Calculando Mediana por Tipo de Patente: " << tP[i] << endl;
+        while(!myQueue.empty()) {
+            miPatente = myQueue.front();
+            myQueue.pop();
+
+            if (tP[i] == miPatente.getTipoPatente()) {
+                valoresDePatentes.push_back(miPatente.getValorPatente() * valorUTM);
+            }
+
+            Aux.push(miPatente);
+        }
+
+        sort(valoresDePatentes.begin(), valoresDePatentes.end());
+        size_t tamanho = valoresDePatentes.size();
+
+        cout << '\t';
+        (tamanho == 0) ?
+            cout << "La Mediana es 0" :
+            (tamanho % 2 == 0) ?
+                cout << "La Mediana es: " << valoresDePatentes[tamanho / 2 - 1] + valoresDePatentes[tamanho / 2] / 2.0 << endl :
+                cout << "La Mediana es: " << valoresDePatentes[tamanho / 2] << endl;
+
+        while(!Aux.empty()) {
+            myQueue.push(Aux.front());
+            Aux.pop();
+        }
+    }
+}
+
+double calcularMediaAritmetica(queue<Patente> &queueTemp, int valorUTM)
+{
+    int contador = 0;
+    double suma = 0.0;
+
+    while (!queueTemp.empty()) {
+        suma += queueTemp.front().getValorPatente() * valorUTM;
+        queueTemp.pop();
+        contador++;
+    }
+
+    return (contador == 0) ? 0.0 : (suma / contador);
+}
+
+void mediaAritmetica(vector<std::string> &tP, queue<Patente> &myQueue, int valorUTM)
+{
+    queue<Patente> Aux, AuxTemp;
+    Patente miPatente;
+
+    int contador[5] = {0};
+    int valoresDePatentes[5] = {0};
+
+    for (unsigned i = 0; i < tP.size(); i++) {
+        cout << "Calculando Media por Tipo de Patente: " << tP[i] << endl;
+        while(!myQueue.empty()) {
+            miPatente = myQueue.front();
+            myQueue.pop();
+
+            if (tP[i] == miPatente.getTipoPatente()) {
+                AuxTemp.push(miPatente);
+            }
+
+            Aux.push(miPatente);
+        }
+
+        double X = calcularMediaAritmetica(AuxTemp, valorUTM);
+
+        cout << "\tLa Media es: " << X << endl;
+
+        while(!Aux.empty()) {
+            myQueue.push(Aux.front());
+            Aux.pop();
+        }
+    }
+}
+
+double calcularDesviacionEstandar(queue<Patente> &queueTemp, int valorUTM, double _mediaAritmetica)
+{
+    int contador = 0;
+    double sumaDiferenciasCuadradas = 0.0;
+
+    while (!queueTemp.empty()) {
+        double diferencia = (queueTemp.front().getValorPatente() * valorUTM) - _mediaAritmetica;
+        sumaDiferenciasCuadradas += diferencia * diferencia;
+        queueTemp.pop();
+        contador++;
+    }
+
+    double varianza = sumaDiferenciasCuadradas / contador;
+
+    double dE = sqrt(varianza);
+
+    return dE;
+}
+
+void desviacionEstandar(vector<std::string> &tP, queue<Patente> &myQueue, int valorUTM)
+{
+    queue<Patente> Aux, Temp_1, Temp_2;
+    Patente miPatente;
+
+    double _mediaAritmetica, sumaDiferenciasCuadradas = 0.0;
+
+    for (unsigned i = 0; i < tP.size(); i++) {
+        cout << "Calculando Desviación Estandar por Tipo de Patente: " << tP[i] << endl;
+        while(!myQueue.empty()) {
+            miPatente = myQueue.front();
+            myQueue.pop();
+
+            if (tP[i] == miPatente.getTipoPatente()) {
+                Temp_1.push(miPatente);
+                Temp_2.push(miPatente);
+            }
+
+            Aux.push(miPatente);
+        }
+
+        _mediaAritmetica = calcularMediaAritmetica(Temp_1, valorUTM);
+
+        // Calculo de Desviación Estandar
+
+        cout << "\tLa Desviación Estandar es: " << calcularDesviacionEstandar(Temp_2, valorUTM, _mediaAritmetica) <<  endl;
+
+        while(!Aux.empty()) {
+            myQueue.push(Aux.front());
+            Aux.pop();
+        }
+    }
+}
+
+
+void mayorVariabilidad(queue<Patente> &myQueue, int valorUTM)
+{
+    queue<Patente> Aux, Temp_1, Temp_2;
+    Patente miPatente;
+
+    double CV[3];
+
+    string girosDePatente[3] = { "BOTILLERIA", "MINIMERCADOS", "REST.DIURNO"};
+
+    for (int i = 0; i < 3; i++) {
+        while(!myQueue.empty()) {
+            miPatente = myQueue.front();
+            myQueue.pop();
+
+            if (miPatente.getGiro() == girosDePatente[i]) {
+                Temp_1.push(miPatente);
+                Temp_2.push(miPatente);
+            }
+
+            Aux.push(miPatente);
+        }
+        double X = calcularMediaAritmetica(Temp_1, valorUTM);
+        double S = calcularDesviacionEstandar(Temp_2, valorUTM, X);
+
+        CV[i] = S/X;
+
+        while(!Aux.empty()) {
+            myQueue.push(Aux.front());
+            Aux.pop();
+        }
+    }
+
+    int posicion;
+    double _mayorVariabilidad = 0.0;
+
+    for(int i = 0; i < 3; i++) {
+        if (CV[i] > _mayorVariabilidad) {
+            _mayorVariabilidad = CV[i];
+            posicion = i;
+        }
+    }
+
+    cout << "La Mayor Variabilidad es de: " << girosDePatente[posicion] << " con una variabilidad de: " << _mayorVariabilidad <<  endl;
+}
+
+vector<std::string> tiposDePatentes(queue<Patente> &myQueue)
+{
+    vector<std::string> tP;
+
+    queue<Patente> Aux, newAux;
+    Patente miPatente;
+
+    int valoresDePatentes[5] = {0};
+
+    while(!myQueue.empty()) {
+        miPatente = myQueue.front();
+        myQueue.pop();
+
+        tP.push_back(miPatente.getTipoPatente());
+
+        Aux.push(miPatente);
+    }
+
+    set<string> string_set(tP.begin(), tP.end());
+    tP.assign(string_set.begin(), string_set.end());
+
+    // Volvemos a ingresar la información...
+    while(!Aux.empty()) {
+        myQueue.push(Aux.front());
+        Aux.pop();
+    }
+
+    return tP;
+}
+
+void estadisticasDescriptivas(queue<Patente> &myQueue, int valorUTM)
+{
+    queue<Patente> Aux;
+    Patente miPatente;
+
+    vector<std::string> tP = tiposDePatentes(myQueue);
+
+    int opcion;
+
+    do {
+        cout << "1. Calcualr Media Aritmética." << endl;
+        cout << "2. Calcualr Mediana." << endl;
+        cout << "3. Calcualr Desviación Estandar." << endl;
+        cout << "4. Mayor Variabilidad." << endl;
+
+        cin >> opcion;
+        cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+
+        switch (opcion) {
+            case 0:
+                cout << "Volviendo al menú principal..." << endl;
+                break;
+            case 1:
+                mediaAritmetica(tP, myQueue, valorUTM);
+                break;
+            case 2:
+                mediana(tP, myQueue, valorUTM);
+                break;
+            case 3:
+                desviacionEstandar(tP, myQueue, valorUTM);
+                break;
+            case 4:
+                mayorVariabilidad(myQueue, valorUTM);
+            default:
+                break;
+        }
+    }while(opcion != 0);
+}
 
 // ==== FUNCIÓN 3 ====;
 void anhioConMasPatentesDeAlcoholes(queue<Patente> &myQueue)
